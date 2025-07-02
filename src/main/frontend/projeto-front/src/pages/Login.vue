@@ -17,7 +17,6 @@
             required
             class="border border-gray-300 rounded px-5 py-3 focus:outline-none focus:ring-2 focus:ring-blue-500"
         />
-        <p v-if="errorEmail" class="text-red-600 text-sm mt-1">{{ errorEmail }}</p>
       </div>
 
       <div class="flex flex-col">
@@ -30,7 +29,7 @@
             required
             class="border border-gray-300 rounded px-5 py-3 focus:outline-none focus:ring-2 focus:ring-blue-500"
         />
-        <p v-if="errorSenha" class="text-red-600 text-sm mt-1">{{ errorSenha }}</p>
+        <p v-if="errorValue" class="text-red-600 text-sm mt-1">{{ errorValue }}</p>
       </div>
 
       <p class="text-sm text-center text-gray-600">
@@ -54,18 +53,18 @@
   import axios from 'axios';
   import { ref } from 'vue';
   import { useRouter } from 'vue-router';
-  import { login } from '../composables/auth.js';
+  import { useUserStore } from '../stores/user';
 
+  const userStore = useUserStore();
   const email = ref('');
   const senha = ref('');
-  const errorEmail = ref('');
-  const errorSenha = ref('');
+  const errorValue = ref('');
   const errorAcesso = ref('');
   const router = useRouter();
 
   async function handleLogin() {
-    errorEmail.value = '';
-    errorSenha.value = '';
+    errorValue.value = '';
+    errorAcesso.value = '';
 
     try {
       const response = await axios.post('http://localhost:8080/ampara/login', {
@@ -73,30 +72,31 @@
         senha: senha.value,
       });
 
-      console.log('Usuário autenticado:', response.data);
-      //console.log('Usuário autenticado SITUACAO:', response.data.situacao);
+      // Chama login da store e aguarda
+      await userStore.login(response.data.token);
 
-      login(response.data) // Define os dados do profissonal que foi autenticado no sistema na sessão
       await router.push('/inicio');
 
     } catch (error) {
-      if (error.response && error.response.data) {
-        const message = error.response.data.message || '';
+      const message = error?.message || '';
 
-        if (message.toLowerCase().includes('senha')) {
-          errorSenha.value = message;
-        } else if (message.toLowerCase().includes('profissional') || message.toLowerCase().includes('não encontrado')) {
-          errorEmail.value = message;
-        }  else if (message.toLowerCase().includes('acesso negado')){
-          errorAcesso.value = message;
-        }
-        else {
-          // erro genérico para ambos
-          errorEmail.value = 'Email ou senha inválidos.';
-          errorSenha.value = 'Email ou senha inválidos.';
+      if (message.includes('não ativo')) {
+        errorAcesso.value = 'Seu usuário não está ativo. Contate o administrador.';
+      } else if (error.response && error.response.status === 400) {
+        // Se o status for 400, assume erro de credenciais
+        errorValue.value = 'Email ou senha incorretos.';
+      } else if (error.response && error.response.data) {
+        const msg = error.response.data.message.toLowerCase();
+
+        if (msg.includes('senha')) {
+          errorSenha.value = error.response.data.message;
+        } else if (msg.includes('profissional') || msg.includes('não encontrado')) {
+          errorEmail.value = error.response.data.message;
+        } else if (msg.includes('acesso negado')) {
+          errorAcesso.value = error.response.data.message;
         }
       } else {
-        errorEmail.value = 'Erro na conexão. Verifique sua rede.';
+        errorValue.value = 'Erro na conexão. Verifique sua rede.';
       }
     }
   }

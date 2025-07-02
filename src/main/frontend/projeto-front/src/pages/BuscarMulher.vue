@@ -116,7 +116,7 @@
     return valor
   }
 
-  //wath para formatação de data digitada somente se o filtro for data
+  //watch para formatação de data digitada somente se o filtro for data
   watch([filtroSelecionado, valorBusca], ([filtro, valor]) => {
     if (filtro === 'data') {
       const valorFormatado = mascaraDataFormatada(valor)
@@ -161,16 +161,21 @@
     buscou.value = false
 
     try {
+      const token = localStorage.getItem('token')
+
       const { data } = await axios.get('http://localhost:8080/ampara/mulher/buscar', {
         params: {
-          filtro: filtroSelecionado.value,//manda o filtro selecionado
+          filtro: filtroSelecionado.value,
           valor: valorBusca.value,
+        },
+        headers: {
+          Authorization: `Bearer ${token}`,
         },
       })
 
       resultado.value = data
       buscou.value = true
-    } catch (err) { // mostra mensagem de erro vinda da API ou mensagem genérica
+    } catch (err) {
       erro.value = err.response?.data?.message || 'Erro ao buscar dados. Tente novamente.'
       resultado.value = []
       buscou.value = true

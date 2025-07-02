@@ -5,7 +5,7 @@
 
     <!-- Tabela dos locais -->
     <div class="w-full max-w-4xl mx-auto">
-      <table class="w-full border bg-white border-gray-200">
+      <table class="min-w-full  text-sm text-left ">
         <thead>
           <tr class="bg-purple-100 text-center text-purple-900">
             <th class="px-6 py-3 border-b border-gray-300">Nome</th>
@@ -48,8 +48,15 @@
 
   // Busca os locais da API ao montar o componente
   onMounted(async () => {
+
     try {
-      const response = await axios.get('http://localhost:8080/ampara/local/listar')
+      const token = localStorage.getItem('token')
+
+      const response = await axios.get('http://localhost:8080/ampara/local/listar', {
+        headers: {
+          Authorization: `Bearer ${token}`,
+        },
+      })
       locais.value = response.data
     } catch (err) {
       erro.value = 'Erro ao carregar os locais.'

@@ -26,10 +26,7 @@ public class TratadorDeErros {
             dados.add(new DadosErroValidacao(fe.getField(), fe.getDefaultMessage()));
         }
         return ResponseEntity.badRequest().body(dados);
-
     }
 
-    private record DadosErroValidacao(String campo, String mensagem) {
-
-    }
+    private record DadosErroValidacao(String campo, String mensagem) { }
 }

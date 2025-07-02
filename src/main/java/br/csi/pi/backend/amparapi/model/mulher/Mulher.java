@@ -5,7 +5,6 @@ import com.fasterxml.jackson.annotation.JsonFormat;
 import io.swagger.v3.oas.annotations.media.Schema;
 import jakarta.persistence.*;
 import jakarta.validation.constraints.NotBlank;
-import jakarta.validation.constraints.Pattern;
 import jakarta.validation.constraints.Size;
 import lombok.AllArgsConstructor;
 import lombok.NoArgsConstructor;
@@ -24,11 +23,11 @@ public class Mulher {
     @Id
     @GeneratedValue(
             strategy = GenerationType.IDENTITY)
-    @Schema(description = "ID do profissional", example = "1")
+    @Schema(description = "ID da mulher", example = "1")
     private Long id;
 
     @UuidGenerator
-    @Schema(description = "UUID único do profissional", example = "6effe31d-6eaa-4a15-8330-ff78588cb843")
+    @Schema(description = "UUID único da mulher", example = "6effe31d-6eaa-4a15-8330-ff78588cb843")
     private UUID uuid;
 
     @Size(max = 100, message = "Nome deve ter no máximo 100 caracteres")
@@ -113,10 +112,6 @@ public class Mulher {
 
     public @Size(max = 15, message = "Telefone deve ter no máximo 15 caracteres") @NotBlank String getTelefone() {
         return telefone;
-//        return String.format("(%s) %s-%s",
-//                telefone.substring(0, 2),     // DDD
-//                telefone.substring(2, 7),     // parte 1 do núm
-//                telefone.substring(7));       // parte 2 do núm
     }
 
     public void setTelefone(@Size(max = 15, message = "Telefone deve ter no máximo 15 caracteres") @NotBlank String telefone) {
@@ -166,4 +161,6 @@ public class Mulher {
     public void setEndereco(@NotBlank @NonNull Endereco endereco) {
         this.endereco = endereco;
     }
+
+
 }

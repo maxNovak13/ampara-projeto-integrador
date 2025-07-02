@@ -6,7 +6,6 @@ import jakarta.persistence.*;
 import jakarta.validation.constraints.NotBlank;
 import jakarta.validation.constraints.Size;
 import lombok.*;
-import org.springframework.util.StringUtils;
 
 @Entity
 @Table(name = "local")
@@ -28,6 +27,10 @@ public class Local {
     @Embedded
     @NonNull
     private Endereco endereco;
+
+    public Long getId() {
+        return id;
+    }
 
     public @NotBlank @Size(max = 100, message = "Nome deve ter no máximo 100 digitos") String getNome() {
         return nome;

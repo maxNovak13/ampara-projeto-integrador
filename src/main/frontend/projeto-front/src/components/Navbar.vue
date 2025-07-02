@@ -7,30 +7,13 @@
         <span class="font-bold text-xl">Ampara</span>
       </div>
 
-      <!-- Botão muda conforme nome do usuário logado-->
-      <div v-if="profissional">
-        <div class="relative" ref="dropdownRef">
-          <button
-              @click="toggleDropdown"
-              class="bg-purple-300 text-black font-semibold px-4 py-2 rounded flex items-center gap-2"
-          >
-            <img src="../assets/user-icon.png"  alt="Avatar" class="w-6 h-6 rounded-full" />
-             {{ profissional.nome || 'Usuário' }} &nbsp
-            <img src="../assets/seta-icon.png"  alt="Seta para baixo" class="w-4 h-4 rounded-full" />
-          </button>
-
-          <div
-              v-if="dropdownOpen"
-              class="absolute right-0 mt-2 w-32 bg-white rounded shadow-lg text-gray-700"
-          >
-            <button
-                @click="handleLogout"
-                class="w-full text-left px-4 py-2 hover:bg-purple-100"
-            >
-              Sair
-            </button>
-          </div>
-        </div>
+      <!-- Botão logout com nome e ícone Sair-->
+      <div v-if="profissional" class="flex items-center gap-2">
+        <img src="../assets/user-icon.png" alt="Avatar" class="w-6 h-6 rounded-full" />
+        <span class="font-semibold text-black">{{ profissional.nome || 'Usuário' }}</span>
+        <button @click="handleLogout" class="ml-2">
+          <img src="../assets/sair-icon.png" alt="Sair" class="w-5 h-5" />
+        </button>
       </div>
 
       <!-- Visitante: botão login/cadastro -->
@@ -60,14 +43,14 @@
       </router-link>
       <!-- Apenas administradores podem acessar e visualizar  -->
       <router-link
-          v-if="profissional?.adm"
+          v-if="profissional.role === 'ADMIN'"
           to="/gerenciar-profissional"
           active-class="text-purple-700 border-b-2 border-purple-700"
       >
         Gerenciar profissionais
       </router-link>
       <router-link
-          v-if="profissional?.adm"
+          v-if="profissional.role === 'ADMIN'"
           to="/gerenciar-local"
           active-class="text-purple-700 border-b-2 border-purple-700"
       >
@@ -78,16 +61,24 @@
 </template>
 
 <script setup>
-import { ref, onBeforeUnmount } from 'vue';
+import {ref, onBeforeUnmount, onMounted, computed} from 'vue';
 import { useRouter, useRoute } from 'vue-router';
-import { useAuth } from '../composables/auth.js'; // ajuste o caminho conforme necessário
+import { useUserStore } from '../stores/user'
 
 const router = useRouter();
 const route = useRoute();
 const dropdownOpen = ref(false);
 const dropdownRef = ref(null);
 
-const { profissional, logout } = useAuth();
+
+const userStore = useUserStore()
+
+onMounted(() => {
+  const uuid = localStorage.getItem('uuid');
+  if (uuid) userStore.fetchUserProfile(uuid);
+});
+
+const profissional = computed(() => userStore.userData)
 
 function handleClick() {//lógica para aparecer ou não o botão Acessar/Cadastrar-se
   if (route.path === '/login') {
@@ -97,29 +88,8 @@ function handleClick() {//lógica para aparecer ou não o botão Acessar/Cadastr
   }
 }
 
-function toggleDropdown() {//lógica do botão dropdown do usuário nome->Sair
-  dropdownOpen.value = !dropdownOpen.value;
-
-  if (dropdownOpen.value) {
-    window.addEventListener('click', handleClickOutside);
-  } else {
-    window.removeEventListener('click', handleClickOutside);
-  }
-}
-
-function handleClickOutside(event) {//fecha dropdown se usuário clicar fora dele
-  if (dropdownRef.value && !dropdownRef.value.contains(event.target)) {
-    dropdownOpen.value = false;
-    window.removeEventListener('click', handleClickOutside);
-  }
-}
-
-function handleLogout() {//implementa o sair da conta = limpa localStorage e atualiza os refs
-  logout(); //
+function handleLogout() {//implementa o sair da conta
+  userStore.logout();
   router.push('/login');
 }
-
-onBeforeUnmount(() => {//remove o listener
-  window.removeEventListener('click', handleClickOutside);
-});
 </script>

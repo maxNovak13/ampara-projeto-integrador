@@ -4,6 +4,7 @@
 
     <!-- Formulário de cadastro da mulher -->
     <form @submit.prevent="handleCadastro" class="grid grid-cols-1 md:grid-cols-2 gap-8">
+
       <!-- Lado esquerdo do formulário-->
       <div class="flex flex-col gap-6">
         <div>
@@ -198,11 +199,21 @@
   })
 
   async function handleCadastro() {
-    console.log("DATA ", mulher.endereco.rua)
     try {
       Object.keys(erros).forEach(key => delete erros[key])
-      const response = await axios.post('http://localhost:8080/ampara/mulher', mulher)
-      //console.log("UUID CRIADO CADASTRO ", response.data.uuid)
+
+      // Obter token do localStorage
+      const token = localStorage.getItem('token')
+
+      const response = await axios.post(
+          'http://localhost:8080/ampara/mulher',
+          mulher,
+          {
+            headers: {
+              Authorization: `Bearer ${token}`
+            }
+          }
+      )
       await router.push(`/perfil-mulher/${response.data.uuid}`)
     } catch (err) {
       if (err.response && err.response.data && typeof err.response.data === 'object') {

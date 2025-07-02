@@ -31,6 +31,7 @@
               {{ prof.situacao.charAt(0).toUpperCase() + prof.situacao.slice(1) }}
             </span>
           </td>
+
           <!--Coluna de ação e a lógica dos botões-->
           <td class="px-6 py-3 border-b border-gray-300">
             <AcoesProfissional :prof="prof" :recarregar="carregarProfissionais" />
@@ -46,28 +47,35 @@
 <script setup>
   import BotaoVoltar from "../components/BotaoVoltar.vue";
   import AcoesProfissional from '../components/AcoesProfissional.vue'
-  import { useAuth } from '../composables/auth.js'
+import { useUserStore } from "../stores/user.js";
   import {ref, onMounted, computed} from 'vue'
   import axios from 'axios'
 
-  const { profissional: profissionalLogado } = useAuth()
   const profissionais = ref([])
   const erro = ref(null)
   const carregando = ref(false)
+  const userStore = useUserStore()
+
+  const profissionalLogadoUuid = computed(() => userStore.userData?.uuid || null)
 
   // Lista dos profissionais sem o profissional que está logado
   const profissionaisFiltrados = computed(() =>
-      profissionais.value.filter(p => p.uuid !== profissionalLogado.value?.uuid)
+      profissionais.value.filter(p => p.uuid !== profissionalLogadoUuid.value)
   )
 
-  console.log("INFOS ", profissionalLogado)
-  console.log("EMAIL ", profissionalLogado.value?.user?.email)
+  // console.log("INFOS ", userStore.userData)
+  // console.log("EMAIL ", userStore.userData?.user?.email)
 
   async function carregarProfissionais() {
     carregando.value = true
     erro.value = null
     try {
-      const response = await axios.get('http://localhost:8080/ampara/profissional/listar')
+      const token = localStorage.getItem('token');
+      const response = await axios.get('http://localhost:8080/ampara/profissional/listar', {
+        headers: {
+          Authorization: `Bearer ${token}`,
+        },
+      });
       profissionais.value = response.data
     } catch (e) {
       erro.value = 'Erro ao carregar profissionais. Tente novamente mais tarde.'
@@ -81,6 +89,7 @@
     carregarProfissionais()
   })
 
+  //estilo dos valores sobre a situação
   function badgeClass(situacao) {
     switch (situacao) {
       case 'ativo':

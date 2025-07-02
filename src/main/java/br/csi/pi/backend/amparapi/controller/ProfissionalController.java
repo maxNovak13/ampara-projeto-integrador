@@ -1,9 +1,9 @@
 package br.csi.pi.backend.amparapi.controller;
 
-import br.csi.pi.backend.amparapi.model.mulher.Mulher;
 import br.csi.pi.backend.amparapi.model.profissional.DadosProfissionalDTO;
 import br.csi.pi.backend.amparapi.model.profissional.DadosLoginDTO;
 import br.csi.pi.backend.amparapi.model.profissional.Profissional;
+import br.csi.pi.backend.amparapi.model.registro.DadosRegistroTabelaDTO;
 import br.csi.pi.backend.amparapi.service.ProfissionalService;
 import io.swagger.v3.oas.annotations.Operation;
 import io.swagger.v3.oas.annotations.Parameter;
@@ -31,8 +31,8 @@ public class ProfissionalController {
         this.profissionalService = profissionalService;
     }
 
-    ///http://localhost:8080/ampara/profissional
-    @PostMapping()
+    ///http://localhost:8080/ampara/profissional/cadastro
+    @PostMapping
     @Transactional
     @Operation(summary = "Criar um novo profissional", description = "Cria um novo profissional e o adiciona à lista")
     @ApiResponses(value = {
@@ -48,21 +48,18 @@ public class ProfissionalController {
         return ResponseEntity.created(uri).body(dto);
     }
 
-
-
-
-    //nao será usado no front -> só para teste
-    ///http://localhost:8080/ampara/profissional/{id} --> vai ser buscado
-    @GetMapping("/{id}")
-    @Operation(summary = "Busca profissional por ID", description = "Retorna um profissional correspondente ao ID fornecido")
+    ///http://localhost:8080/ampara/profissional/listar
+    @Operation(summary = "Listar todos os profissionais")
     @ApiResponses(value = {
-            @ApiResponse(responseCode = "200", description = "Profissional encontrado",
-                    content = @Content(mediaType = "application/json",
-                            schema = @Schema(implementation = Profissional.class))),
-            @ApiResponse(responseCode = "404", description = "Profissional não encontrado", content = @Content)
+            @ApiResponse(
+                    responseCode = "200",
+                    description = "Lista de profissionais retornada com sucesso",
+                    content = @Content(array = @ArraySchema(schema = @Schema(implementation = DadosProfissionalDTO.class)))
+            )
     })
-    public DadosLoginDTO buscaProfissionalId(@Parameter(description = "ID do profissional a ser buscado") @PathVariable Long id) {
-        return this.profissionalService.buscaProfissional(id);
+    @GetMapping("/listar")
+    public List<DadosProfissionalDTO> listarProfissionais() {
+        return this.profissionalService.listar();
     }
 
     ///http://localhost:8080/ampara/profissional/uuid/{uuid}
@@ -74,20 +71,10 @@ public class ProfissionalController {
             @ApiResponse(responseCode = "404", description = "Profissional não encontrado")
     })
     @GetMapping("/uuid/{uuid}")
-    public Profissional buscaProfissionalUuid(@PathVariable String uuid) {
-        return this.profissionalService.buscaProfissionalUUID(uuid);
-    }
+    public DadosLoginDTO buscaProfissionalUuid(@PathVariable String uuid) {
+        Profissional prof = this.profissionalService.buscaProfissionalUUID(uuid);
+        return new DadosLoginDTO(prof);
 
-
-    ///http://localhost:8080/ampara/profissional/listar
-    @Operation(summary = "Listar todos os profissionais")
-    @ApiResponses(value = {
-            @ApiResponse(responseCode = "200", description = "Lista de profissionais obtida com sucesso",
-            content = @Content(array = @ArraySchema(schema = @Schema(implementation = Profissional.class)))),
-    })
-    @GetMapping("/listar")
-    public List<DadosProfissionalDTO> buscaTodos() {
-        return this.profissionalService.listarProfissionais();
     }
 
 
@@ -113,9 +100,9 @@ public class ProfissionalController {
             @ApiResponse(responseCode = "404", description = "Profissional não encontrado"),
         }
     )
-    @PatchMapping("/{uuid}/boolean")//mudar
-    public ResponseEntity<Void> mudarAcesso(@PathVariable String uuid, @RequestParam boolean adm) {//quando clicar no botao vai mandar o valor de adm
-        boolean atualizado = profissionalService.mudarAcesso(uuid, adm);//futuramente adicionar lógica de verificar se é adm
+    @PatchMapping("/{uuid}/role")//mudar
+    public ResponseEntity<Void> mudarAcesso(@PathVariable String uuid, @RequestParam String novo) {//quando clicar no botao vai mandar o valor de adm
+        boolean atualizado = profissionalService.mudarAcesso(uuid, novo);
         if (!atualizado) {
             return ResponseEntity.notFound().build();
         }

@@ -20,15 +20,15 @@
     <!-- SITUAÇÂO = Ativo: Tornar adm / Tirar acesso de adm -->
     <template v-else-if="prof.situacao === 'ATIVO'">
       <button
-          v-if="!prof.adm"
-          @click="atualizarAdm(true)"
+          v-if="prof.role === 'USER'"
+          @click="atualizarRole('ADMIN')"
           class="bg-blue-200 text-blue-800 px-3 py-1 rounded hover:bg-blue-300 font-medium"
       >
         Tornar administrador
       </button>
       <button
           v-else
-          @click="atualizarAdm(false)"
+          @click="atualizarRole('USER')"
           class="bg-yellow-100 text-yellow-800 px-3 py-1 rounded hover:bg-yellow-200 font-medium"
       >
         Tirar acesso de adm
@@ -56,6 +56,7 @@
 
 <script setup>
 import axios from 'axios'
+
 const props = defineProps({
   prof: Object,
   recarregar: Function
@@ -63,21 +64,28 @@ const props = defineProps({
 
 async function atualizarSituacao(novaSituacao) {
   try {
-    console.log("Nova situacao ", novaSituacao, " uuid ", props.prof.uuid)
+    const token = localStorage.getItem('token');
     await axios.patch(`http://localhost:8080/ampara/profissional/${props.prof.uuid}/situacao`, null, {
-      params: { nova: novaSituacao }
-    })
+      params: { nova: novaSituacao },
+      headers: {
+        Authorization: `Bearer ${token}`,
+      },
+    });
     await props.recarregar()
   } catch (error) {
     console.error('Erro ao atualizar situação:', error)
   }
 }
 
-async function atualizarAdm(novoValor) {
+async function atualizarRole(novoRole) {
   try {
-    await axios.patch(`http://localhost:8080/ampara/profissional/${props.prof.uuid}/boolean`, null, {
-      params: { adm: novoValor }
-    })
+    const token = localStorage.getItem('token');
+    await axios.patch(`http://localhost:8080/ampara/profissional/${props.prof.uuid}/role`, null, {
+      params: { novo: novoRole },
+      headers: {
+        Authorization: `Bearer ${token}`,
+      },
+    });
     await props.recarregar()
   } catch (error) {
     console.error('Erro ao atualizar administrador:', error)

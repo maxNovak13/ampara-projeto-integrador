@@ -4,7 +4,7 @@
     <div class="grid grid-cols-1 md:grid-cols-2 gap-8">
       <!-- Gerenciar Profissionais (somente para admin) -->
       <div
-          v-if="profissional?.adm"
+          v-if="profissional?.role === 'ADMIN'"
           @click="router.push('/gerenciar-profissional')"
           class="cursor-pointer bg-purple-100 hover:bg-purple-200 p-6 rounded-xl shadow text-center transition shadow-lg shadow-purple-300/50"
       >
@@ -14,7 +14,7 @@
 
       <!-- Gerenciar Locais (somente para admin) -->
       <div
-          v-if="profissional?.adm"
+          v-if="profissional?.role === 'ADMIN'"
           @click="router.push('/gerenciar-local')"
           class="cursor-pointer bg-purple-100 hover:bg-purple-200 p-6 rounded-xl shadow text-center transition shadow-lg shadow-purple-300/50"
       >
@@ -45,15 +45,19 @@
 
 <script setup>
   import { useRouter } from 'vue-router'
-  import { ref, onMounted } from 'vue'
+  import {ref, onMounted, computed} from 'vue'
+  import { useUserStore } from '../stores/user'
 
   const router = useRouter()
-  const profissional = ref(null)
+  const userStore = useUserStore()
+
+  const profissional = computed(() => userStore.userData)
 
   // Carrega o profissional do localStorage ao montar
   onMounted(() => {
-    const data = localStorage.getItem('profissional')
-    profissional.value = data ? JSON.parse(data) : null
+    if (!userStore.userData && localStorage.getItem('uuid')) {
+      userStore.fetchUserProfile(localStorage.getItem('uuid'))
+    }
   })
 </script>
 

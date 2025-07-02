@@ -11,15 +11,11 @@ import io.swagger.v3.oas.annotations.media.Schema;
 import io.swagger.v3.oas.annotations.responses.ApiResponse;
 import io.swagger.v3.oas.annotations.responses.ApiResponses;
 import jakarta.validation.Valid;
-import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.transaction.annotation.Transactional;
 import org.springframework.web.bind.annotation.*;
 import org.springframework.web.util.UriComponentsBuilder;
-
 import java.net.URI;
-import java.sql.Statement;
-import java.time.LocalDate;
 import java.util.List;
 
 @RestController
@@ -34,7 +30,7 @@ public class MulherController {
     ///http://localhost:8080/ampara/mulher
     @PostMapping()
     @Transactional
-    @Operation(summary = "Criar uma nova mulher", description = "Cria uma nova mulher e o adiciona à lista")
+    @Operation(summary = "Criar uma nova mulher", description = "Cria uma nova mulher e a adiciona à lista")
     @ApiResponses(value = {
             @ApiResponse(responseCode = "201", description = "Mulher criada com sucesso",
                     content = @Content(mediaType = "application/json",
@@ -51,10 +47,10 @@ public class MulherController {
     ///http://localhost:8080/ampara/mulher/uuid/{uuid}
     @Operation(summary = "Obter mulher por UUID")
     @ApiResponses(value = {
-            @ApiResponse(responseCode = "200", description = "Mulher encontrado",
+            @ApiResponse(responseCode = "200", description = "Mulher encontrada",
                     content = {@Content(mediaType = "application/json",
                             schema = @Schema(implementation =  Mulher.class))}),
-            @ApiResponse(responseCode = "404", description = "Mulher não encontrado")
+            @ApiResponse(responseCode = "404", description = "Mulher não encontrada")
     })
     @GetMapping("/uuid/{uuid}")
     public DadosMulherDTO buscaMulherUuid(@PathVariable String uuid) {
@@ -62,29 +58,18 @@ public class MulherController {
         return new DadosMulherDTO(mulher); // retorna DTO
     }
 
-    //apenas para teste
-    //http://localhost:8080/ampara/mulher/listar
-    @Operation(summary = "Listar todas as mulheres")
-    @ApiResponses(value = {
-            @ApiResponse(responseCode = "200", description = "Lista de mulheres obtida com sucesso",
-                    content = @Content(array = @ArraySchema(schema = @Schema(implementation = Mulher.class)))),
-    })
-    @GetMapping("/listar")
-    public List<DadosMulherDTO> buscaTodas() {
-        return this.mulherService.listarMulheres();
-    }
 
-    ///http://localhost:8080/ampara/mulher
-    @Operation(summary = "Atualizar mulher", description = "Atualiza as informações de uma mulher.")
-    @ApiResponses(value = {
-            @ApiResponse(responseCode = "200", description = "As informações foram atualizadas com sucesso"),
-            @ApiResponse(responseCode = "404", description = "Mulher não encontrada")
-    })
-    @PutMapping("/{uuid}")
-    public ResponseEntity<Mulher> atualizar(@RequestBody Mulher mulher, @PathVariable String uuid) {
-        Mulher mulherAtt = this.mulherService.atualizarDadosMulher(mulher, uuid);
-        return ResponseEntity.ok(mulherAtt);
-    }
+//    ///http://localhost:8080/ampara/mulher
+//    @Operation(summary = "Atualizar mulher", description = "Atualiza as informações de uma mulher.")
+//    @ApiResponses(value = {
+//            @ApiResponse(responseCode = "200", description = "As informações foram atualizadas com sucesso"),
+//            @ApiResponse(responseCode = "404", description = "Mulher não encontrada")
+//    })
+//    @PutMapping("/{uuid}")
+//    public ResponseEntity<Mulher> atualizar(@RequestBody Mulher mulher, @PathVariable String uuid) {
+//        Mulher mulherAtt = this.mulherService.atualizarDadosMulher(mulher, uuid);
+//        return ResponseEntity.ok(mulherAtt);
+//    }
 
     //http://localhost:8080/ampara/mulher/buscar?filtro=nome&valor=amanda
     @Operation(summary = "Buscar mulheres por filtro",

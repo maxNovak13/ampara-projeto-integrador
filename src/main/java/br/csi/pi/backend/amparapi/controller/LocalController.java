@@ -1,7 +1,9 @@
 package br.csi.pi.backend.amparapi.controller;
 
+import br.csi.pi.backend.amparapi.model.local.DadosLocalDTO;
 import br.csi.pi.backend.amparapi.model.local.Local;
 import br.csi.pi.backend.amparapi.model.mulher.Mulher;
+import br.csi.pi.backend.amparapi.model.mulher.MulherResultadoBuscaDTO;
 import br.csi.pi.backend.amparapi.service.LocalService;
 import io.swagger.v3.oas.annotations.Operation;
 import io.swagger.v3.oas.annotations.media.ArraySchema;
@@ -53,15 +55,17 @@ public class LocalController {
         return this.localService.listarLocais();
     }
 
-    ///http://localhost:8080/ampara/local/{id}
-    @Operation(summary = "Deletar local por ID")
+    //http://localhost:8080/ampara/local/buscar?valor=delegacia
+    @Operation(summary = "Buscar locais por nome",
+            description = "Retorna uma lista de locais com base no valor informado.")
     @ApiResponses(value = {
-            @ApiResponse(responseCode = "204", description = "Local deletado com sucesso"),
-            @ApiResponse(responseCode = "404", description = "Local não encontrado")
+            @ApiResponse(responseCode = "200", description = "Lista encontrada com sucesso",
+                    content = @Content(array = @ArraySchema(schema = @Schema(implementation = DadosLocalDTO.class)))),
+            @ApiResponse(responseCode = "400", description = "Não foi encontrado"),
     })
-    @DeleteMapping("/{id}")
-    public ResponseEntity<HttpStatus> deletar(@PathVariable Long id) {
-        this.localService.excluirLocal(id);
-        return ResponseEntity.noContent().build();
+    @GetMapping("/buscar")
+    public ResponseEntity<List<DadosLocalDTO>> buscarPorFiltro(@RequestParam String nome) {
+        List<DadosLocalDTO> locais = localService.buscarLocaisPorNome(nome);
+        return ResponseEntity.ok(locais);
     }
 }

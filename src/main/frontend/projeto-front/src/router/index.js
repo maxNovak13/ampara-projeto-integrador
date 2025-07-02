@@ -9,6 +9,10 @@ import BuscarMulher from '../pages/BuscarMulher.vue';
 import GerenciarLocal from '../pages/GerenciarLocal.vue';
 import CadastrarLocal from '../pages/CadastrarLocal.vue';
 import GerenciarProfissional from '../pages/GerenciarProfissional.vue';
+import CadastrarRegistro from "../pages/CadastrarRegistro.vue";
+import CadastrarAgressor from "../pages/CadastrarAgressor.vue"
+import { useUserStore } from '../stores/user';
+import { storeToRefs } from 'pinia';
 
 
 
@@ -61,6 +65,23 @@ const routes = [
         component: GerenciarProfissional,
         meta: { requiresAuth: true }, // rota protegida
     },
+    {
+        path: '/registro/:uuid',
+        name: 'VisualizarRegistro',
+        component: () => import('../pages/VisualizarRegistro.vue'),
+        meta: { requiresAuth: true }, // rota protegida
+    },
+    {
+        path: '/cadastrar-registro/:uuidMulher',
+        name: 'CadastrarRegistro',
+        component: () => import('../pages/CadastrarRegistro.vue'),
+        meta: { requiresAuth: true }, // rota protegida
+    },
+    {
+        path: '/cadastrar-agressor',
+        component: CadastrarAgressor,
+        meta: { requiresAuth: true }, // rota protegida
+    }
 ];
 
 const router = createRouter({
@@ -68,13 +89,42 @@ const router = createRouter({
     routes,
 });
 
-// Guard global para proteger rotas que exigem autenticação e situação ATIVO
-router.beforeEach((to, from, next) => {
-    const profissional = JSON.parse(localStorage.getItem('profissional'));
+// Proteção das rotas
+router.beforeEach(async (to, from, next) => {
+    const userStore = useUserStore();
+    const { userData } = storeToRefs(userStore);
 
-    if (to.meta.requiresAuth) {
-        if (!profissional || profissional.situacao !== 'ATIVO') {
-            alert('Você não tem permissão para acessar esta página.');
+    const token = localStorage.getItem('token');
+
+    // Se tem token mas o perfil ainda não foi carregado
+    if (token) {
+        try {
+            const payload = JSON.parse(atob(token.split('.')[1]));
+            const now = Date.now() / 1000;
+
+            if (payload.exp < now) { //verifica se o token esta expirado
+                console.warn('Token expirado.');
+                userStore.logout();
+                return next('/login');
+            }
+
+            if (!userData.value) {//busca perfil
+                await userStore.fetchUserProfile(payload.uuid);
+            }
+
+        } catch (error) {
+            console.error('Erro ao processar token ou buscar perfil:', error);
+            userStore.logout();
+            return next('/login');
+        }
+    }
+
+    // Proteção com segurança contra dados nulos
+    const situacao = userData.value?.situacao;
+
+    if (to.meta?.requiresAuth) {
+        if (!token || situacao !== 'ATIVO') {
+            alert('Você não tem permissão para acessar o sistema.');
             return next('/login');
         }
     }

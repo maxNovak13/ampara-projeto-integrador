@@ -27,24 +27,21 @@ public class MulherService {
         return mulherRepository.findMulherByUuid(UUID.fromString(uuid));
     }
 
-    public Mulher atualizarDadosMulher(Mulher mulher, String uuid) {
-        Mulher mDadosAnteriores = buscarPorUuid(uuid);
-        Mulher m = this.mulherRepository.getReferenceById(mDadosAnteriores.getId());
-        m.setNome(mulher.getNome());
-        m.setDataNascimento(mulher.getDataNascimento());
-        m.setCpf(mulher.getCpf());
-        m.setTelefone(mulher.getTelefone());
-        m.setNomeMae(mulher.getNomeMae());
-        m.setEscolaridade(mulher.getEscolaridade());
-        m.setProfissao(mulher.getProfissao());
-        m.setEstadoCivil(mulher.getEstadoCivil());
-        m.setEndereco(mulher.getEndereco());
-        return this.mulherRepository.save(m);
-    }
+//    public Mulher atualizarDadosMulher(Mulher mulher, String uuid) {
+//        Mulher mDadosAnteriores = buscarPorUuid(uuid);
+//        Mulher m = this.mulherRepository.getReferenceById(mDadosAnteriores.getId());
+//        m.setNome(mulher.getNome());
+//        m.setDataNascimento(mulher.getDataNascimento());
+//        m.setCpf(mulher.getCpf());
+//        m.setTelefone(mulher.getTelefone());
+//        m.setNomeMae(mulher.getNomeMae());
+//        m.setEscolaridade(mulher.getEscolaridade());
+//        m.setProfissao(mulher.getProfissao());
+//        m.setEstadoCivil(mulher.getEstadoCivil());
+//        m.setEndereco(mulher.getEndereco());
+//        return this.mulherRepository.save(m);
+//    }
 
-    public List<DadosMulherDTO> listarMulheres() {//apenas para teste
-        return mulherRepository.findAll().stream().map(DadosMulherDTO::new).toList();
-    }
     //BUSCAS
 
     public List<MulherResultadoBuscaDTO> buscarPorFiltro(String filtro, String valor) {

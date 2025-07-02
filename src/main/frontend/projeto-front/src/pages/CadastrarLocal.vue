@@ -113,11 +113,19 @@
 
   async function handleCadastro() {
     try {
-      await axios.post('http://localhost:8080/ampara/local', local)
+      const token = localStorage.getItem('token');
+
+      await axios.post('http://localhost:8080/ampara/local', local, {
+        headers: {
+          Authorization: `Bearer ${token}`,
+        },
+      });
+
       mensagemSucesso.value = 'Local cadastrado com sucesso!'
       setTimeout(() => {
         router.push('/gerenciar-local')
       }, 3000)
+
     } catch (error) {
       console.error(error)
       alert('Erro ao cadastrar local.')

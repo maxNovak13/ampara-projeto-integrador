@@ -7,6 +7,5 @@ create table profissional (
                               email varchar(150) not null unique,
                               senha varchar(80) not null,
                               situacao varchar(10) not null,
-                              administrador boolean not null
+                              role varchar not null
     )
----CREATE EXTENSION pgcrypto;

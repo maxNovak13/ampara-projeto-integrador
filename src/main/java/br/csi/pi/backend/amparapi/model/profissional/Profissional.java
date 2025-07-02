@@ -58,11 +58,21 @@ public class Profissional {
     @Schema(description = "Situação do cadastro", example = "ATIVO")
     private Situacao situacao;
 
-    @Schema(description = "Indica se o profissional tem perfil de administrador", example = "false")
-    private boolean administrador;
+    @Enumerated(EnumType.STRING)
+    @Schema(description = "Indica se o profissional tem perfil de administrador", example = "USER")
+    private Role role;
 
     public enum Situacao {
         ATIVO, INATIVO, PENDENTE
+    }
+
+    public enum Role {
+            USER,
+            ADMIN
+    }
+
+    public Long getId() {
+        return id;
     }
 
     public @Size(max = 100, message = "Nome deve ter no máximo 100 caracteres") String getNome() {
@@ -113,12 +123,12 @@ public class Profissional {
         this.situacao = situacao;
     }
 
-    public boolean isAdministrador() {
-        return administrador;
+    public Role getRole() {
+        return role;
     }
 
-    public void setAdministrador(boolean administrador) {
-        this.administrador = administrador;
+    public void setRole(Role role) {
+        this.role = role;
     }
 
     public UUID getUuid() {

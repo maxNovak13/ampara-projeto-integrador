@@ -89,9 +89,9 @@
 <script setup>
   import { ref, onMounted } from 'vue'
   import {useRoute, useRouter} from 'vue-router'
-  import axios from 'axios'
-  import BotaoVoltar from "../components/BotaoVoltar.vue";
-  import TabelaRegistros from "../components/TabelaRegistros.vue";
+  import BotaoVoltar from "../../components/BotaoVoltar.vue";
+  import TabelaRegistros from "../../components/TabelaRegistros.vue";
+  import api from '../../services/api.js'
 
   const router = useRouter()
   const route = useRoute()
@@ -100,15 +100,10 @@
   onMounted(async () => {
     const uuid = route.params.uuid
     try {
-      const token = localStorage.getItem('token') // Recupera o token
-      const { data } = await axios.get(`http://localhost:8080/ampara/mulher/uuid/${uuid}`, {
-        headers: {
-          Authorization: `Bearer ${token}`, // Adiciona o token no header
-        },
-      })
+      const { data } = await api.get(`/mulher/uuid/${uuid}`)
       mulher.value = data
     } catch (error) {
-      console.error('Erro ao carregar perfil:', error)
+      //console.error('Erro ao carregar perfil:', error)
     }
   })
 

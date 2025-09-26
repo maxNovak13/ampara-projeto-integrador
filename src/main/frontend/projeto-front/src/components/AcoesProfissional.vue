@@ -53,9 +53,8 @@
     </template>
   </div>
 </template>
-
 <script setup>
-import axios from 'axios'
+import api from '../services/api.js'
 
 const props = defineProps({
   prof: Object,
@@ -64,31 +63,23 @@ const props = defineProps({
 
 async function atualizarSituacao(novaSituacao) {
   try {
-    const token = localStorage.getItem('token');
-    await axios.patch(`http://localhost:8080/ampara/profissional/${props.prof.uuid}/situacao`, null, {
-      params: { nova: novaSituacao },
-      headers: {
-        Authorization: `Bearer ${token}`,
-      },
-    });
+    await api.patch(`/profissional/${props.prof.uuid}/situacao`, null, {
+      params: { nova: novaSituacao }
+    })
     await props.recarregar()
   } catch (error) {
-    console.error('Erro ao atualizar situação:', error)
+    //console.error('Erro ao atualizar situação:', error)
   }
 }
 
 async function atualizarRole(novoRole) {
   try {
-    const token = localStorage.getItem('token');
-    await axios.patch(`http://localhost:8080/ampara/profissional/${props.prof.uuid}/role`, null, {
-      params: { novo: novoRole },
-      headers: {
-        Authorization: `Bearer ${token}`,
-      },
-    });
+    await api.patch(`/profissional/${props.prof.uuid}/role`, null, {
+      params: { novo: novoRole }
+    })
     await props.recarregar()
   } catch (error) {
-    console.error('Erro ao atualizar administrador:', error)
+    //console.error('Erro ao atualizar role:', error)
   }
 }
 </script>

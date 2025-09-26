@@ -83,7 +83,7 @@
 
 <script setup>
   import { ref, watch } from 'vue'
-  import axios from 'axios'
+  import api from '../../services/api.js'
   import { useRouter } from 'vue-router'
 
   const filtroSelecionado = ref('nome')
@@ -161,16 +161,11 @@
     buscou.value = false
 
     try {
-      const token = localStorage.getItem('token')
-
-      const { data } = await axios.get('http://localhost:8080/ampara/mulher/buscar', {
+      const { data } = await api.get('/mulher/buscar', {
         params: {
           filtro: filtroSelecionado.value,
           valor: valorBusca.value,
-        },
-        headers: {
-          Authorization: `Bearer ${token}`,
-        },
+        }
       })
 
       resultado.value = data

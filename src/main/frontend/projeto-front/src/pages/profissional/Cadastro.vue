@@ -91,22 +91,24 @@
 </template>
 
 <script setup>
-import { ref } from 'vue';
-import axios from 'axios';
-import { useRouter } from 'vue-router';
-import BotaoCancelar from "../components/BotaoCancelar.vue";
+import { ref } from 'vue'
+import api from '../../services/api.js'
+import { useRouter } from 'vue-router'
+import BotaoCancelar from "../../components/BotaoCancelar.vue"
+import { useToast } from 'vue-toastification'
 
-const nome = ref('');
-const email = ref('');
-const profissao = ref('');
-const registro = ref('');
-const senha = ref('');
+const nome = ref('')
+const email = ref('')
+const profissao = ref('')
+const registro = ref('')
+const senha = ref('')
 
-const errorMsg = ref('');
-const router = useRouter();
+const errorMsg = ref('')
+const router = useRouter()
+const toast = useToast()
 
 async function handleCadastro() {
-  errorMsg.value = '';
+  errorMsg.value = ''
 
   try {
     const profissional = {
@@ -115,24 +117,29 @@ async function handleCadastro() {
       profissao: profissao.value,
       registro: registro.value,
       senha: senha.value,
-    };
-
-    const response = await axios.post('http://localhost:8080/ampara/profissional', profissional);
-
-    if (response.status === 201) {
-      alert('Cadastro realizado com sucesso! Espere receber a permissão de acesso de um administrador.');
-      router.push('/login'); // redireciono para login após cadastro
     }
 
+    const response = await api.post('/profissional', profissional)
+
+    if (response.status === 201) {
+      toast.success(
+          'Cadastro realizado com sucesso! Espere receber a permissão de acesso de um administrador.',
+          { timeout: 10000 } // 10s
+      )
+      router.push('/login') // redireciona para login após cadastro
+    }
   } catch (error) {
     if (error.response) {
       if (error.response.status === 400) {
-        errorMsg.value = 'Dados inválidos fornecidos. Verifique os campos.';
+        errorMsg.value = 'Dados inválidos fornecidos. Verifique os campos.'
+        toast.error(errorMsg.value)
       } else {
-        errorMsg.value = `Erro ${error.response.status}: ${error.response.data?.message || 'Erro desconhecido'}`;
+        errorMsg.value = `Erro ${error.response.status}: ${error.response.data?.message || 'Erro desconhecido'}`
+        toast.error(errorMsg.value)
       }
     } else {
-      errorMsg.value = 'Erro na conexão. Verifique sua rede.';
+      errorMsg.value = 'Erro na conexão. Verifique sua rede.'
+      toast.error(errorMsg.value)
     }
   }
 }

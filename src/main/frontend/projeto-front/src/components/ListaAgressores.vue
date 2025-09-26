@@ -44,11 +44,7 @@
       <div class="grid grid-cols-1 md:grid-cols-2 gap-6">
         <div class="text-base">
           <p class="text-black font-medium">Endereço</p>
-          <p class="text-gray-800">
-            {{ agressor.endereco.rua }}, {{ agressor.endereco.numero }} -
-            {{ agressor.endereco.bairro }},
-            {{ agressor.endereco.complemento || '-' }}
-          </p>
+          <p class="text-gray-800">{{ formatarEndereco(agressor.endereco) }}</p>
         </div>
         <div class="text-base">
           <p class="text-black font-medium">Descrição</p>
@@ -80,6 +76,20 @@ const emit = defineEmits(['remover'])
 
 function removerAgressor(index) {
   emit('remover', index)
+}
+
+
+function formatarEndereco(endereco) {
+  if (!endereco) return '-'
+
+  const partes = []
+  if (endereco.rua) {
+    partes.push(endereco.numero ? `${endereco.rua} ${endereco.numero}` : endereco.rua)
+  }
+  if (endereco.bairro) partes.push(endereco.bairro)
+  if (endereco.complemento) partes.push(endereco.complemento)
+
+  return partes.length ? partes.join(', ') : '-'
 }
 
 </script>

@@ -1,18 +1,17 @@
 import { createRouter, createWebHistory } from 'vue-router';
 
-import Login from '../pages/Login.vue';
-import Cadastro from '../pages/Cadastro.vue';
+import Login from '../pages/profissional/Login.vue';
+import Cadastro from '../pages/profissional/Cadastro.vue';
 import Inicio from '../pages/Inicio.vue';
-import CadastrarMulher from '../pages/CadastrarMulher.vue';
-import PerfilMulher from "../pages/PerfilMulher.vue";
-import BuscarMulher from '../pages/BuscarMulher.vue';
-import GerenciarLocal from '../pages/GerenciarLocal.vue';
-import CadastrarLocal from '../pages/CadastrarLocal.vue';
-import GerenciarProfissional from '../pages/GerenciarProfissional.vue';
-import CadastrarRegistro from "../pages/CadastrarRegistro.vue";
-import CadastrarAgressor from "../pages/CadastrarAgressor.vue"
-import { useUserStore } from '../stores/user';
-import { storeToRefs } from 'pinia';
+import CadastrarMulher from '../pages/mulher/CadastrarMulher.vue';
+import PerfilMulher from "../pages/mulher/PerfilMulher.vue";
+import BuscarMulher from '../pages/mulher/BuscarMulher.vue';
+import GerenciarLocal from '../pages/local/GerenciarLocal.vue';
+import CadastrarLocal from '../pages/local/CadastrarLocal.vue';
+import GerenciarProfissional from '../pages/profissional/GerenciarProfissional.vue';
+import CadastrarRegistro from "../pages/registro/CadastrarRegistro.vue";
+import CadastrarAgressor from "../pages/registro/CadastrarAgressor.vue"
+
 
 
 
@@ -42,7 +41,7 @@ const routes = [
     {
         path: '/perfil-mulher/:uuid',
         name: 'PerfilMulher',
-        component: () => import('../pages/PerfilMulher.vue'),
+        component: () => import('../pages/mulher/PerfilMulher.vue'),
         meta: { requiresAuth: true },// rota protegida
     },
     {
@@ -68,13 +67,13 @@ const routes = [
     {
         path: '/registro/:uuid',
         name: 'VisualizarRegistro',
-        component: () => import('../pages/VisualizarRegistro.vue'),
+        component: () => import('../pages/registro/VisualizarRegistro.vue'),
         meta: { requiresAuth: true }, // rota protegida
     },
     {
         path: '/cadastrar-registro/:uuidMulher',
         name: 'CadastrarRegistro',
-        component: () => import('../pages/CadastrarRegistro.vue'),
+        component: () => import('../pages/registro/CadastrarRegistro.vue'),
         meta: { requiresAuth: true }, // rota protegida
     },
     {
@@ -90,40 +89,43 @@ const router = createRouter({
 });
 
 // Proteção das rotas
+import { useUserStore } from '../stores/user';
+import { storeToRefs } from 'pinia';
+
 router.beforeEach(async (to, from, next) => {
     const userStore = useUserStore();
     const { userData } = storeToRefs(userStore);
-
     const token = localStorage.getItem('token');
 
-    // Se tem token mas o perfil ainda não foi carregado
     if (token) {
         try {
             const payload = JSON.parse(atob(token.split('.')[1]));
             const now = Date.now() / 1000;
 
-            if (payload.exp < now) { //verifica se o token esta expirado
-                console.warn('Token expirado.');
+            if (payload.exp < now) {
+                //console.warn('Token expirado.');
                 userStore.logout();
                 return next('/login');
             }
 
-            if (!userData.value) {//busca perfil
-                await userStore.fetchUserProfile(payload.uuid);
+            if (!userData.value) {
+                await userStore.fetchUserProfile();
+            }
+
+            // se já esta logado redireciona pra home
+            if (to.path === '/login') {
+                return next('/inicio');
             }
 
         } catch (error) {
-            console.error('Erro ao processar token ou buscar perfil:', error);
+            //console.error('Erro ao processar token ou buscar perfil:', error);
             userStore.logout();
             return next('/login');
         }
     }
 
-    // Proteção com segurança contra dados nulos
-    const situacao = userData.value?.situacao;
-
     if (to.meta?.requiresAuth) {
-        if (!token || situacao !== 'ATIVO') {
+        if (!token || userData.value?.situacao !== 'ATIVO') {
             alert('Você não tem permissão para acessar o sistema.');
             return next('/login');
         }

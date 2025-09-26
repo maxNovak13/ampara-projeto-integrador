@@ -1,5 +1,5 @@
 import { defineStore } from 'pinia';
-import axios from 'axios';
+import api from '../services/api';
 
 export const useUserStore = defineStore('user', {
     state: () => ({
@@ -11,15 +11,8 @@ export const useUserStore = defineStore('user', {
             this.token = token;
             localStorage.setItem('token', token);
 
-            // Extrai UUID do token
-            const payload = JSON.parse(atob(token.split('.')[1]));
-            const uuid = payload.uuid;
-            localStorage.setItem('uuid', uuid);
+            await this.fetchUserProfile();
 
-            // Busca perfil do usuário
-            await this.fetchUserProfile(uuid);
-
-            // Se o usuário não está ativo, desloga e lança erro
             if (!this.userData || this.userData.situacao !== 'ATIVO') {
                 this.logout();
                 throw new Error('Usuário não ativo');
@@ -28,20 +21,36 @@ export const useUserStore = defineStore('user', {
             // console.log('Usuário logado com sucesso:', this.userData, 'Token:', this.token);
         },
 
-        async fetchUserProfile(uuid) {
-            if (!this.token || !uuid) return;
+        async fetchUserProfile() {
+            if (!this.token) return;
 
             try {
-                const response = await axios.get(`http://localhost:8080/ampara/profissional/uuid/${uuid}`, {
-                    headers: {
-                        Authorization: `Bearer ${this.token}`,
-                    },
-                });
-
+                const response = await api.get('/profissional/logado'); // token será adicionado pelo interceptor
                 this.userData = response.data;
                 localStorage.setItem('profissional', JSON.stringify(response.data));
             } catch (error) {
+                //console.error('Erro ao buscar perfil:', error);
                 this.logout();
+                throw error;
+            }
+        },
+
+        initialize() {
+            const token = localStorage.getItem('token');
+            const user = localStorage.getItem('profissional');
+
+            if (token && user) {
+                const payload = JSON.parse(atob(token.split('.')[1]));
+                const exp = payload.exp * 1000; // segundos → ms
+                const now = Date.now();
+
+                if (exp > now) {
+                    // Token ainda válido
+                    this.token = token;
+                    this.userData = JSON.parse(user);
+                } else {
+                    this.logout(); // Token expirado
+                }
             }
         },
 
@@ -50,7 +59,6 @@ export const useUserStore = defineStore('user', {
             this.userData = null;
             localStorage.removeItem('token');
             localStorage.removeItem('profissional');
-            localStorage.removeItem('uuid');
         },
     },
 });

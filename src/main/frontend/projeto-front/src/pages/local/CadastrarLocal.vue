@@ -2,16 +2,8 @@
   <div class="max-w-lg mx-auto border border-gray-300 mt-5 mb-5 p-8 bg-white rounded shadow-lg">
     <h1 class="text-3xl font-bold mb-8 text-center">Adicionar local</h1>
 
-    <!-- Mensagem de sucesso -->
-    <div
-        v-if="mensagemSucesso"
-        class="mb-6 p-4 bg-green-100 text-green-800 border border-green-300 rounded text-center"
-    >
-      {{ mensagemSucesso }}
-    </div>
-
     <!-- Formulário de cadastro de locais -->
-    <form @submit.prevent="handleCadastro" class="flex flex-col gap-6" v-show="!mensagemSucesso">
+    <form @submit.prevent="handleCadastro" class="flex flex-col gap-6">
       <div class="flex flex-col">
         <label for="nome" class="mb-1 text-gray-700 font-medium">Nome do local</label>
         <input
@@ -79,7 +71,7 @@
       </div>
 
       <div class="flex justify-between">
-        <BotaoCancelar destino="/gerenciar-local"/>
+        <BotaoCancelar destino="/gerenciar-local" />
         <button
             type="submit"
             class="bg-purple-700 text-white py-3 px-7 rounded hover:bg-purple-800 transition"
@@ -92,47 +84,39 @@
 </template>
 
 <script setup>
-  import { reactive, ref } from 'vue'
-  import { useRouter } from 'vue-router'
-  import axios from 'axios'
-  import BotaoCancelar from '../components/BotaoCancelar.vue'
+import { reactive } from 'vue'
+import { useRouter } from 'vue-router'
+import { useToast } from 'vue-toastification'
+import api from '../../services/api.js'
+import BotaoCancelar from '../../components/BotaoCancelar.vue'
 
-  const router = useRouter()
+const toast = useToast()
+const router = useRouter()
 
-  const local = reactive({
-    nome: '',
-    endereco: {
-      rua: '',
-      numero: '',
-      bairro: '',
-      complemento: ''
-    }
-  })
-
-  const mensagemSucesso = ref('')
-
-  async function handleCadastro() {
-    try {
-      const token = localStorage.getItem('token');
-
-      await axios.post('http://localhost:8080/ampara/local', local, {
-        headers: {
-          Authorization: `Bearer ${token}`,
-        },
-      });
-
-      mensagemSucesso.value = 'Local cadastrado com sucesso!'
-      setTimeout(() => {
-        router.push('/gerenciar-local')
-      }, 3000)
-
-    } catch (error) {
-      console.error(error)
-      alert('Erro ao cadastrar local.')
-    }
+const local = reactive({
+  nome: '',
+  endereco: {
+    rua: '',
+    numero: '',
+    bairro: '',
+    complemento: ''
   }
+})
+
+async function handleCadastro() {
+  try {
+    await api.post('/local', local)
+
+    toast.success('Local cadastrado com sucesso!')
+    setTimeout(() => {
+      router.push('/gerenciar-local')
+    }, 2000)
+  } catch (error) {
+    //console.error(error)
+    toast.error('Erro ao cadastrar local.')
+  }
+}
 </script>
 
 <style scoped>
-
 </style>

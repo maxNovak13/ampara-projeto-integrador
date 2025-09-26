@@ -118,12 +118,12 @@
 
 <script setup>
 import { reactive } from 'vue'
-import { useRegistroStore } from '../stores/registroStore'
+import { useRegistroStore } from '../../stores/registroStore.js'
 import { useRouter } from 'vue-router'
 import { useToast } from 'vue-toastification'
-import BotaoVoltar from "../components/BotaoVoltar.vue";
-import ListaAgressores from '../components/ListaAgressores.vue'
-import { useUserStore } from '../stores/user'
+import BotaoVoltar from "../../components/BotaoVoltar.vue";
+import ListaAgressores from '../../components/ListaAgressores.vue'
+import { useUserStore } from '../../stores/user.js'
 
 const userStore = useUserStore()
 const token = userStore.token

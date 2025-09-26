@@ -93,9 +93,9 @@
 <script setup>
 import { ref, onMounted } from 'vue'
 import { useRoute } from 'vue-router'
-import axios from 'axios'
-import BotaoVoltar from '../components/BotaoVoltar.vue'
-import ListaAgressores from '../components/ListaAgressores.vue'
+import api from '../../services/api.js'
+import BotaoVoltar from '../../components/BotaoVoltar.vue'
+import ListaAgressores from '../../components/ListaAgressores.vue'
 
 const route = useRoute()
 const registro = ref(null)
@@ -114,15 +114,10 @@ const formatarEndereco = (endereco) => {
 onMounted(async () => {
   const uuid = route.params.uuid
   try {
-    const token = localStorage.getItem('token')
-    const res = await axios.get(`http://localhost:8080/ampara/registro/buscar-reg/${uuid}`, {
-      headers: {
-        Authorization: `Bearer ${token}`
-      }
-    })
+    const res = await api.get(`/registro/buscar-reg/${uuid}`)
     registro.value = res.data
   } catch (err) {
-    console.error('Erro ao buscar registro:', err)
+    //console.error('Erro ao buscar registro:', err)
   }
 })
 

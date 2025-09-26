@@ -43,7 +43,7 @@ export const useRegistroStore = defineStore('registro', {
                     }
                 )
             } catch (error) {
-                console.error('Erro ao enviar registro:', error)
+                //console.error('Erro ao enviar registro:', error)
                 throw error
             }
         },

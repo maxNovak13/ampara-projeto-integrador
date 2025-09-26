@@ -36,7 +36,7 @@
 <script setup>
 import { ref, watch } from 'vue'
 import { useRouter } from 'vue-router'
-import axios from 'axios'
+import api from '../services/api'
 
 const router = useRouter()
 
@@ -59,15 +59,10 @@ watch(
     async (uuidMulher) => {
       if (!uuidMulher) return
       try {
-        const token = localStorage.getItem('token');
-        const { data } = await axios.get(`http://localhost:8080/ampara/registro/buscar/${uuidMulher}`, {
-          headers: {
-            Authorization: `Bearer ${token}`,
-          },
-        });
+        const { data } = await api.get(`/registro/buscar/${uuidMulher}`)
         registros.value = data
       } catch (error) {
-        console.error('Erro ao buscar registros:', error)
+        //console.error('Erro ao buscar registros:', error)
       }
     },
     { immediate: true }

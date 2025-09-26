@@ -59,8 +59,8 @@ public class Registro {
     private boolean violencia;
 
     @NotBlank
-    @Size(max = 50)
-    @Column(name = "tipo_violencia", length = 50)
+    @Size(max = 200)
+    @Column(name = "tipo_violencia", length = 200)
     @Schema(description = "Tipo de violência sofrida", example = "psicológica")
     private String tipoViolencia;
 
@@ -71,16 +71,15 @@ public class Registro {
     private String relacaoVitima;
 
     @NotBlank
-    @Size(max = 30)
+    @Size(max = 100)
     @Schema(description = "Lugar do ocorrido", example = "residência")
     private String lugar;
 
     @NotBlank
-    @Size(max = 100)
     @Schema(description = "Conduta do profissional", example = "Realizado acolhimento, avaliação inicial e orientação sobre a rede de apoio e medidas legais")
     private String conduta;
 
-    @Size(max = 50)
+    @Size(max = 200)
     @Schema(description = "Encaminhamento dado a vítima sobre o caso", example = "Encaminhada à delegacia")
     private String encaminhamento;
 

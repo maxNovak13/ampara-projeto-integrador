@@ -50,10 +50,10 @@
 </template>
 
 <script setup>
-  import axios from 'axios';
   import { ref } from 'vue';
   import { useRouter } from 'vue-router';
-  import { useUserStore } from '../stores/user';
+  import { useUserStore } from '../../stores/user.js';
+  import api from '../../services/api.js';
 
   const userStore = useUserStore();
   const email = ref('');
@@ -67,15 +67,13 @@
     errorAcesso.value = '';
 
     try {
-      const response = await axios.post('http://localhost:8080/ampara/login', {
+      const response = await api.post('/login', {
         email: email.value,
         senha: senha.value,
       });
 
-      // Chama login da store e aguarda
-      await userStore.login(response.data.token);
-
-      await router.push('/inicio');
+      await userStore.login(response.data.token); // armazena o token
+      await router.push('/inicio'); // redireciona
 
     } catch (error) {
       const message = error?.message || '';

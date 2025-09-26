@@ -20,7 +20,7 @@
               v-model="registro.tipoViolencia"
               type="text"
               required
-              maxlength="50"
+              maxlength="200"
               placeholder="Ex.: Psicológica e física"
               class="border border-gray-300 rounded px-5 py-3 focus:outline-none focus:ring-2 focus:ring-purple-500 w-full" />
         </div>
@@ -45,7 +45,7 @@
               v-model="registro.lugar"
               type="text"
               required
-              maxlength="30"
+              maxlength="100"
               placeholder="Ex.: Na frente da casa da vítima."
               class="border border-gray-300 rounded px-5 py-3 focus:outline-none focus:ring-2 focus:ring-purple-500 w-full" />
         </div>
@@ -108,7 +108,7 @@
           <textarea
               v-model="registro.conduta"
               required
-              maxlength="100"
+              maxlength="400"
               placeholder="Ex.: Realizado acolhimento, avaliação inicial e orientação sobre a rede de apoio e medidas legais."
               class="border border-gray-300 rounded px-5 py-3 focus:outline-none focus:ring-2 focus:ring-purple-500 w-full h-32 resize-none"></textarea>
         </div>
@@ -118,7 +118,7 @@
           <textarea
               v-model="registro.encaminhamento"
               required
-              maxlength="50"
+              maxlength="200"
               placeholder="Ex.: Encaminhada à delegacia."
               class="border border-gray-300 rounded px-5 py-3 focus:outline-none focus:ring-2 focus:ring-purple-500 w-full h-32 resize-none"></textarea>
         </div>
@@ -144,10 +144,11 @@
 import { ref, watch } from 'vue'
 import { useRoute, useRouter } from 'vue-router'
 import { useToast } from 'vue-toastification'
-import { useRegistroStore } from '../stores/registroStore'
-import BotaoVoltar from "../components/BotaoVoltar.vue"
-import axios from 'axios'
-import { useUserStore } from '../stores/user'
+import { useRegistroStore } from '../../stores/registroStore.js'
+import BotaoVoltar from "../../components/BotaoVoltar.vue"
+import api from '../../services/api.js'
+import { useUserStore } from '../../stores/user.js'
+
 
 const userStore = useUserStore()
 const profissional = userStore.userData
@@ -173,18 +174,14 @@ watch(localSelecionadoNome, (novoNome) => {
 
 // Buscar locais
 async function buscarLocais() {
-  if (localSelecionadoNome.value.length >= 4) {
+  if (localSelecionadoNome.value.length >= 3) {
     try {
-      const res = await fetch(`http://localhost:8080/ampara/local/buscar?nome=${localSelecionadoNome.value}`, {
-        headers: {
-          'Authorization': `Bearer ${token}`,
-          'Content-Type': 'application/json',
-        }
+      const response = await api.get('/local/buscar', {
+        params: { nome: localSelecionadoNome.value }
       })
-      if (!res.ok) throw new Error('Erro na requisição')
-      locais.value = await res.json()
+      locais.value = response.data
     } catch (error) {
-      console.error('Erro ao buscar locais:', error)
+      //console.error('Erro ao buscar locais:', error)
       toast.error('Erro ao buscar locais')
     }
   }

@@ -11,12 +11,12 @@ create table registro (
                         data_ocorrido date,
                         depoimento text,
                         violencia boolean not null,
-                        tipo_violencia varchar(50) not null,
+                        tipo_violencia varchar(200) not null,
                         relacao_vitima varchar(50) not null,
-                        lugar varchar(30) not null,
+                        lugar varchar(100) not null,
 
-                        conduta varchar(100) not null,
-                        encaminhamento varchar(50),
+                        conduta text not null,
+                        encaminhamento varchar(200),
                         descricao text,
 
                         constraint fk_mulher foreign key (mulher_id) references mulher(id),

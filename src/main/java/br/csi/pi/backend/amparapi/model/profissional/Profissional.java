@@ -9,7 +9,12 @@ import lombok.AllArgsConstructor;
 import lombok.Builder;
 import lombok.NoArgsConstructor;
 import org.hibernate.annotations.UuidGenerator;
+import org.springframework.security.core.GrantedAuthority;
+import org.springframework.security.core.userdetails.UserDetails;
+import org.springframework.security.core.authority.SimpleGrantedAuthority;
 
+import java.util.Collection;
+import java.util.List;
 import java.util.UUID;
 
 @Entity
@@ -17,7 +22,7 @@ import java.util.UUID;
 @NoArgsConstructor
 @AllArgsConstructor
 @Schema(description = "Entidade que representa o profissional vinculado a uma unidade da rede de apoio às vítimas de violência contra a mulher.")
-public class Profissional {
+public class Profissional implements UserDetails {
     @Id
     @GeneratedValue(
             strategy = GenerationType.IDENTITY)
@@ -61,6 +66,22 @@ public class Profissional {
     @Enumerated(EnumType.STRING)
     @Schema(description = "Indica se o profissional tem perfil de administrador", example = "USER")
     private Role role;
+
+    @Override
+    public Collection<? extends GrantedAuthority> getAuthorities() {
+        if (this.role == null) return List.of();
+        return List.of(new SimpleGrantedAuthority( this.role.name()));
+    }
+
+    @Override
+    public String getPassword() {
+        return this.senha;
+    }
+
+    @Override
+    public String getUsername() {
+        return this.email;
+    }
 
     public enum Situacao {
         ATIVO, INATIVO, PENDENTE

@@ -1,6 +1,7 @@
 package br.csi.pi.backend.amparapi.controller;
 
 import br.csi.pi.backend.amparapi.infra.security.TokenServiceJWT;
+import br.csi.pi.backend.amparapi.model.profissional.Profissional;
 import jakarta.validation.Valid;
 import org.springframework.http.ResponseEntity;
 import org.springframework.security.authentication.AuthenticationManager;
@@ -26,12 +27,14 @@ public class AutenticacaoController {
     @PostMapping()
     public ResponseEntity login(@RequestBody @Valid DadosAutenticacao dados) {
        try{
-           Authentication autenticado = new UsernamePasswordAuthenticationToken(dados.email(),
-                   dados.senha());
-           Authentication at = manager.authenticate(autenticado);
+           UsernamePasswordAuthenticationToken authenticationToken =
+                   new UsernamePasswordAuthenticationToken(dados.email(), dados.senha());
 
-           User user = (User) at.getPrincipal();
-           String token = this.tokenServiceJWT.gerarToken(user);
+           Authentication at = manager.authenticate(authenticationToken);
+
+           Profissional profissional = (Profissional) at.getPrincipal();
+          // System.out.println("profissional infomado: " + profissional.getUuid() + " " + profissional.getNome());
+           String token = this.tokenServiceJWT.gerarToken(profissional);
 
            return ResponseEntity.ok().body(new DadosTokenJWT(token));
        }

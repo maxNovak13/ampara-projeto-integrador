@@ -2,6 +2,7 @@ package br.csi.pi.backend.amparapi.service;
 
 import br.csi.pi.backend.amparapi.model.local.DadosLocalDTO;
 import br.csi.pi.backend.amparapi.model.profissional.*;
+import org.springframework.data.domain.Sort;
 import org.springframework.http.HttpStatus;
 import org.springframework.security.core.userdetails.User;
 import org.springframework.security.core.userdetails.UserDetails;
@@ -32,7 +33,10 @@ public class ProfissionalService {
     }
 
     public List<DadosProfissionalDTO> listar() {
-        return this.profissionalRepository.findAll().stream().map(DadosProfissionalDTO::new).toList();
+        return this.profissionalRepository.findAll(Sort.by("nome")) // ordena pelo campo nome
+                .stream()
+                .map(DadosProfissionalDTO::new)
+                .toList();
     }
 
     public Profissional buscaProfissionalUUID(String uuid) {

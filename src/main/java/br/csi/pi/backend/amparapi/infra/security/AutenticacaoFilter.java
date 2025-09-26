@@ -1,5 +1,6 @@
 package br.csi.pi.backend.amparapi.infra.security;
 
+import br.csi.pi.backend.amparapi.model.profissional.Profissional;
 import br.csi.pi.backend.amparapi.service.AutenticacaoService;
 import jakarta.servlet.FilterChain;
 import jakarta.servlet.ServletException;
@@ -36,13 +37,14 @@ public class AutenticacaoFilter extends OncePerRequestFilter {
         if (tokenJWT != null) {
             String subject = this.tokenServiceJWT.getSubject(tokenJWT);
 
-            UserDetails userDetails = this.autenticacaoService.loadUserByUsername(subject);
+            ///UserDetails userDetails = this.autenticacaoService.loadUserByUsername(subject);
+            Profissional profissional = (Profissional) this.autenticacaoService.loadUserByUsername(subject);
 
-//            System.out.println("[TOKEN OK] Usuário autenticado: " + subject);
-//            System.out.println("[TOKEN OK] Authorities: " + userDetails.getAuthorities());
+            System.out.println("[TOKEN OK] Usuário autenticado: " + subject);
+            System.out.println("[TOKEN OK] Authorities: " + profissional.getAuthorities());
 
             UsernamePasswordAuthenticationToken authenticationToken =
-                    new UsernamePasswordAuthenticationToken(userDetails, null, userDetails.getAuthorities());
+                    new UsernamePasswordAuthenticationToken(profissional, null, profissional.getAuthorities());
             SecurityContextHolder.getContext().setAuthentication(authenticationToken);
         }
         filterChain.doFilter(request, response);

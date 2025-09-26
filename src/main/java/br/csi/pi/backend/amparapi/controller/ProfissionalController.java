@@ -14,6 +14,7 @@ import io.swagger.v3.oas.annotations.responses.ApiResponse;
 import io.swagger.v3.oas.annotations.responses.ApiResponses;
 import jakarta.validation.Valid;
 import org.springframework.http.ResponseEntity;
+import org.springframework.security.core.context.SecurityContextHolder;
 import org.springframework.transaction.annotation.Transactional;
 import org.springframework.web.bind.annotation.*;
 import org.springframework.web.util.UriComponentsBuilder;
@@ -75,6 +76,21 @@ public class ProfissionalController {
         Profissional prof = this.profissionalService.buscaProfissionalUUID(uuid);
         return new DadosLoginDTO(prof);
 
+    }
+
+
+    @Operation(summary = "Obter profissional logado")
+    @ApiResponses(value = {
+            @ApiResponse(responseCode = "200", description = "Profissional encontrado",
+                    content = {@Content(mediaType = "application/json",
+                            schema = @Schema(implementation =  Profissional.class))}),
+            @ApiResponse(responseCode = "404", description = "Profissional não encontrado")
+    })
+    ///http://localhost:8080/ampara/profissional/logado
+    @GetMapping("/logado")
+    public ResponseEntity<DadosProfissionalDTO> getLogado() {
+        Profissional p = (Profissional) SecurityContextHolder.getContext().getAuthentication().getPrincipal();
+        return ResponseEntity.ok(new DadosProfissionalDTO(p));
     }
 
 

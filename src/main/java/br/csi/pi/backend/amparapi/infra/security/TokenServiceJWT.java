@@ -16,24 +16,25 @@ import java.time.ZoneOffset;
 @Service
 public class TokenServiceJWT {
 
-    private final ProfissionalRepository profissionalRepository;
+//    private final ProfissionalRepository profissionalRepository;
+//
+//    public TokenServiceJWT(ProfissionalRepository profissionalRepository) {
+//        this.profissionalRepository = profissionalRepository;
+//    }
 
-    public TokenServiceJWT(ProfissionalRepository profissionalRepository) {
-        this.profissionalRepository = profissionalRepository;
-    }
 
-
-    public String gerarToken(User user) {
+    public String gerarToken(Profissional profissional) {
         try{
-            Profissional profissional = profissionalRepository.findByEmail(user.getUsername())
-                    .orElseThrow(() -> new UsernameNotFoundException("Profissional não encontrado"));
+//            Profissional profissional = profissionalRepository.findByEmail(user.getUsername())
+//                    .orElseThrow(() -> new UsernameNotFoundException("Profissional não encontrado"));
 
             Algorithm algorithm = Algorithm.HMAC256("PI");
             return JWT.create()
                     .withIssuer("API Ampara")
-                    .withSubject(user.getUsername())
-                    .withClaim("ROLE", user.getAuthorities().stream().toList().get(0).toString())
+                    .withSubject(profissional.getEmail())
+                    .withClaim("ROLE", profissional.getRole().toString())
                     .withClaim("uuid", profissional.getUuid().toString())
+                    //.withClaim("uuid", profissional.getUuid().toString())
                     .withExpiresAt(dataExpiracao())
                     .sign(algorithm);
         } catch (JWTCreationException e) {

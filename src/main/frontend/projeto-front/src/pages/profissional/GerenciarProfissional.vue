@@ -45,11 +45,11 @@
 </template>
 
 <script setup>
-  import BotaoVoltar from "../components/BotaoVoltar.vue";
-  import AcoesProfissional from '../components/AcoesProfissional.vue'
-import { useUserStore } from "../stores/user.js";
+  import BotaoVoltar from "../../components/BotaoVoltar.vue";
+  import AcoesProfissional from '../../components/AcoesProfissional.vue'
+  import { useUserStore } from "../../stores/user.js";
   import {ref, onMounted, computed} from 'vue'
-  import axios from 'axios'
+  import api from "../../services/api.js";
 
   const profissionais = ref([])
   const erro = ref(null)
@@ -70,16 +70,10 @@ import { useUserStore } from "../stores/user.js";
     carregando.value = true
     erro.value = null
     try {
-      const token = localStorage.getItem('token');
-      const response = await axios.get('http://localhost:8080/ampara/profissional/listar', {
-        headers: {
-          Authorization: `Bearer ${token}`,
-        },
-      });
+      const response = await api.get("/profissional/listar");
       profissionais.value = response.data
     } catch (e) {
       erro.value = 'Erro ao carregar profissionais. Tente novamente mais tarde.'
-      console.error(e)
     } finally {
       carregando.value = false
     }

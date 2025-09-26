@@ -173,57 +173,54 @@
 </template>
 
 <script setup>
-  import { reactive, ref } from 'vue'
-  import axios from 'axios'
-  import { useRouter } from 'vue-router'
-  import BotaoCancelar from "../components/BotaoCancelar.vue";
+import { reactive, ref } from 'vue'
+import api from '../../services/api.js'
+import { useRouter } from 'vue-router'
+import BotaoCancelar from "../../components/BotaoCancelar.vue";
+import { useToast } from 'vue-toastification'
 
-  const router = useRouter()
-  const erros = reactive({})
+const toast = useToast()
+const router = useRouter()
+const erros = reactive({})
 
-  const mulher = reactive({
-    nome: '',
-    dataNascimento: '',
-    cpf: '',
-    telefone: '',
-    profissao: '',
-    nomeMae: '',
-    escolaridade: '',
-    estadoCivil: '',
-    endereco: {
-      rua: '',
-      numero: '',
-      bairro: '',
-      complemento: ''
-    }
-  })
+const mulher = reactive({
+  nome: '',
+  dataNascimento: '',
+  cpf: '',
+  telefone: '',
+  profissao: '',
+  nomeMae: '',
+  escolaridade: '',
+  estadoCivil: '',
+  endereco: {
+    rua: '',
+    numero: '',
+    bairro: '',
+    complemento: ''
+  }
+})
 
-  async function handleCadastro() {
-    try {
-      Object.keys(erros).forEach(key => delete erros[key])
+async function handleCadastro() {
+  try {
+    Object.keys(erros).forEach(key => delete erros[key])
 
-      // Obter token do localStorage
-      const token = localStorage.getItem('token')
+    // Obter token do localStorage
 
-      const response = await axios.post(
-          'http://localhost:8080/ampara/mulher',
-          mulher,
-          {
-            headers: {
-              Authorization: `Bearer ${token}`
-            }
-          }
-      )
-      await router.push(`/perfil-mulher/${response.data.uuid}`)
-    } catch (err) {
-      if (err.response && err.response.data && typeof err.response.data === 'object') {
-        Object.assign(erros, err.response.data)
-        console.error(err.response?.data || err.message)
-      } else {
-        erros.geral = 'Erro desconhecido ao cadastrar mulher.'
-      }
+    const response = await api.post('/mulher', mulher)
+
+    await router.push(`/perfil-mulher/${response.data.uuid}`)
+    toast.success('Cadastro realizado com sucesso!')
+  } catch (err) {
+    if (err.response && err.response.data && typeof err.response.data === 'object') {
+      toast.warning('Preencha todos os campos corretamente.', err.response.data)
+      Object.assign(erros, err.response.data)
+      //console.error(err.response?.data || err.message)
+    } else {
+      toast.error('Erro ao cadastrar mulher')
+      erros.geral = 'Erro desconhecido ao cadastrar mulher.'
     }
   }
+}
 </script>
 
 <style scoped>

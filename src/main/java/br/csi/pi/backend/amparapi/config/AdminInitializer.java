@@ -15,11 +15,11 @@ public class AdminInitializer {
 
     private final PasswordEncoder passwordEncoder;
 
-
-    @Value("${ADMIN_EMAIL:admin@ampara.com}")
+    //em desenvolvimento definir no application.properties email e senha ADMIN_EMAIL=admin@ampara.com ADMIN_PASSWORD=G7m!aR2q
+    @Value("${ADMIN_EMAIL:#{'admin@ampara.com'}}")
     private String adminEmail;
 
-    @Value("${ADMIN_PASSWORD:G7m!aR2q}")
+    @Value("${ADMIN_PASSWORD:#{'G7m!aR2q'}}")
     private String adminPassword;
 
     public AdminInitializer(PasswordEncoder passwordEncoder, ProfissionalRepository profissionalRepository) {
@@ -32,11 +32,11 @@ public class AdminInitializer {
         if (profissionalRepository.countAtivosAdmin() == 0) {
             Profissional admin = new Profissional();
             admin.setNome("Administrador");
-            admin.setEmail("admin@ampara.com");
             admin.setSituacao(Profissional.Situacao.ATIVO);
             admin.setProfissao("Administrador");
             admin.setRegistro("ADMIN");
             admin.setSenha(passwordEncoder.encode(adminPassword));
+            admin.setEmail(adminEmail);
             admin.setRole(Profissional.Role.valueOf("ADMIN"));
 
             profissionalRepository.save(admin);

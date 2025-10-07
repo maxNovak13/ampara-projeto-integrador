@@ -3,10 +3,8 @@ package br.csi.pi.backend.amparapi.controller;
 import br.csi.pi.backend.amparapi.model.profissional.DadosProfissionalDTO;
 import br.csi.pi.backend.amparapi.model.profissional.DadosLoginDTO;
 import br.csi.pi.backend.amparapi.model.profissional.Profissional;
-import br.csi.pi.backend.amparapi.model.registro.DadosRegistroTabelaDTO;
 import br.csi.pi.backend.amparapi.service.ProfissionalService;
 import io.swagger.v3.oas.annotations.Operation;
-import io.swagger.v3.oas.annotations.Parameter;
 import io.swagger.v3.oas.annotations.media.ArraySchema;
 import io.swagger.v3.oas.annotations.media.Content;
 import io.swagger.v3.oas.annotations.media.Schema;
@@ -27,6 +25,7 @@ import java.util.List;
 @RequestMapping("/profissional")
 public class ProfissionalController {
     private final ProfissionalService profissionalService;
+
 
     public ProfissionalController(ProfissionalService profissionalService) {
         this.profissionalService = profissionalService;

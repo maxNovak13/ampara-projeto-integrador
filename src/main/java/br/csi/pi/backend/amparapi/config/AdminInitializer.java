@@ -15,11 +15,11 @@ public class AdminInitializer {
 
     private final PasswordEncoder passwordEncoder;
 
-    //em desenvolvimento definir no application.properties email e senha ADMIN_EMAIL=admin@ampara.com ADMIN_PASSWORD=G7m!aR2q
-    @Value("${ADMIN_EMAIL:#{'admin@ampara.com'}}")
+
+    @Value("${ADMIN_EMAIL}")
     private String adminEmail;
 
-    @Value("${ADMIN_PASSWORD:#{'G7m!aR2q'}}")
+    @Value("${ADMIN_PASSWORD}")
     private String adminPassword;
 
     public AdminInitializer(PasswordEncoder passwordEncoder, ProfissionalRepository profissionalRepository) {
@@ -29,6 +29,12 @@ public class AdminInitializer {
 
     @PostConstruct
     public void init() {
+        if (adminEmail == null || adminEmail.isBlank() || adminPassword == null || adminPassword.isBlank()) {
+            throw new IllegalStateException(
+                    "As variáveis de ambiente ADMIN_EMAIL e ADMIN_PASSWORD devem estar definidas!"
+            );
+        }
+
         if (profissionalRepository.countAtivosAdmin() == 0) {
             Profissional admin = new Profissional();
             admin.setNome("Administrador");
@@ -37,12 +43,11 @@ public class AdminInitializer {
             admin.setRegistro("ADMIN");
             admin.setSenha(passwordEncoder.encode(adminPassword));
             admin.setEmail(adminEmail);
-            admin.setRole(Profissional.Role.valueOf("ADMIN"));
+            admin.setRole(Profissional.Role.ADMIN);
 
             profissionalRepository.save(admin);
-            System.out.println("Usuário administrador padrão criado: " + adminEmail);
-        }
-        else {
+            System.out.println("Usuário administrador criado: " + adminEmail);
+        } else {
             System.out.println("Usuário administrador já existe, não será recriado.");
         }
     }
